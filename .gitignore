@@ -1,0 +1,10 @@
+/Hallway/Binaries
+/Hallway/DerivedDataCache
+/Hallway/Intermediate
+/Hallway/Saved
+/AssetSrc/maya/cache
+/AssetSrc/maya/autosave
+/AssetSrc/maya/renderData
+*.sdf
+*.suo
+*.opensdf

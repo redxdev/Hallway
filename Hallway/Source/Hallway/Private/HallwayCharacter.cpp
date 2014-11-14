@@ -5,6 +5,8 @@
 #include "HallwayProjectile.h"
 #include "Animation/AnimInstance.h"
 
+#include "Engine.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // AHallwayCharacter
@@ -25,19 +27,17 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 	FirstPersonCameraComponent->RelativeLocation = FVector(0, 0, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
-	// Default offset from the character location for projectiles to spawn
-	GunOffset = FVector(100.0f, 30.0f, 10.0f);
-
-	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
-	Mesh1P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("CharacterMesh1P"));
-	Mesh1P->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	Mesh1P->AttachParent = FirstPersonCameraComponent;
-	Mesh1P->RelativeLocation = FVector(0.f, 0.f, -150.f);
-	Mesh1P->bCastDynamicShadow = false;
-	Mesh1P->CastShadow = false;
-
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	// Set some options on the movement component
+	CharacterMovement->GravityScale = 1.5f;
+	CharacterMovement->MaxWalkSpeed = 400.f;
+	CharacterMovement->MaxWalkSpeedCrouched = 200.f;
+	CharacterMovement->MaxSwimSpeed = 200.f;
+	CharacterMovement->MaxAcceleration = 768.f;
+	CharacterMovement->NavAgentProps.bCanCrouch = true;
+	CharacterMovement->bCanWalkOffLedgesWhenCrouching = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -50,9 +50,9 @@ void AHallwayCharacter::SetupPlayerInputComponent(class UInputComponent* InputCo
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	
-	InputComponent->BindAction("Fire", IE_Pressed, this, &AHallwayCharacter::OnFire);
-	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &AHallwayCharacter::TouchStarted);
+
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &AHallwayCharacter::InputCrouch);
+	InputComponent->BindAction("Crouch", IE_Released, this, &AHallwayCharacter::InputUnCrouch);
 
 	InputComponent->BindAxis("MoveForward", this, &AHallwayCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AHallwayCharacter::MoveRight);
@@ -64,51 +64,6 @@ void AHallwayCharacter::SetupPlayerInputComponent(class UInputComponent* InputCo
 	InputComponent->BindAxis("TurnRate", this, &AHallwayCharacter::TurnAtRate);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	InputComponent->BindAxis("LookUpRate", this, &AHallwayCharacter::LookUpAtRate);
-}
-
-void AHallwayCharacter::OnFire()
-{
-	// try and fire a projectile
-	if (ProjectileClass != NULL)
-	{
-		const FRotator SpawnRotation = GetControlRotation();
-		// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-		const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(GunOffset);
-
-		UWorld* const World = GetWorld();
-		if (World != NULL)
-		{
-			// spawn the projectile at the muzzle
-			World->SpawnActor<AHallwayProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-		}
-	}
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if(FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if(AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-
-}
-
-void AHallwayCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
-{
-	// only fire for first finger down
-	if (FingerIndex == 0)
-	{
-		OnFire();
-	}
 }
 
 void AHallwayCharacter::MoveForward(float Value)
@@ -139,4 +94,14 @@ void AHallwayCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AHallwayCharacter::InputCrouch()
+{
+	Crouch();
+}
+
+void AHallwayCharacter::InputUnCrouch()
+{
+	UnCrouch();
 }

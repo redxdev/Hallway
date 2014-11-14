@@ -5,6 +5,7 @@
 /AssetSrc/maya/cache
 /AssetSrc/maya/autosave
 /AssetSrc/maya/renderData
+/AssetExport
 *.sdf
 *.suo
 *.opensdf

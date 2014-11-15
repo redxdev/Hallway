@@ -151,7 +151,7 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 		else if (((int)(FlashlightTimeLeft/5)) != ((int)((FlashlightTimeLeft + DeltaSeconds)/5)))
 		{
 			// TODO: Actual GUI for this
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Flashlight power: %f seconds", FlashlightTimeLeft)));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Flashlight power: %f seconds"), FlashlightTimeLeft));
 		}
 	}
 }

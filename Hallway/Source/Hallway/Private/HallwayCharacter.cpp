@@ -44,6 +44,7 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 	MaxFlashlightTime = 60.f;
 	FlashlightTimeLeft = 60.f;
 	ShouldFlashlightRunOut = true;
+	FlashlightEnabled = true;
 
 	// Create the flashlight
 	FlashlightComponent = PCIP.CreateDefaultSubobject<USpotLightComponent>(this, TEXT("Flashlight"));
@@ -129,14 +130,13 @@ void AHallwayCharacter::InputUnCrouch()
 
 void AHallwayCharacter::ToggleFlashlight()
 {
-	if (!FlashlightComponent->bVisible && FlashlightTimeLeft <= 0)
+	if (!FlashlightEnabled || (!FlashlightComponent->bVisible && FlashlightTimeLeft <= 0))
 	{
 		if (FlashlightErrorSound != NULL)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
 		}
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "No power left to turn flashlight on");
 		return;
 	}
 	
@@ -159,6 +159,16 @@ void AHallwayCharacter::StopUse()
 void AHallwayCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (FlashlightComponent->bVisible && !FlashlightEnabled)
+	{
+		FlashlightComponent->SetVisibility(false);
+
+		if (FlashlightErrorSound != NULL)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+		}
+	}
 
 	if (ShouldFlashlightRunOut && FlashlightComponent->bVisible)
 	{
@@ -205,4 +215,9 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 	{
 		TimeUntilNextFootstep = 0.f;
 	}
+}
+
+void AHallwayCharacter::ToggleFlashlightEnabled()
+{
+	FlashlightEnabled = !FlashlightEnabled;
 }

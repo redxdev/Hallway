@@ -34,6 +34,9 @@ class AHallwayCharacter : public ACharacter
 	bool ShouldFlashlightRunOut;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	bool FlashlightEnabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
 	class USoundBase* FlashlightErrorSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
@@ -41,6 +44,9 @@ class AHallwayCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Character)
 	class USoundBase* FootstepSound;
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay", meta = (FriendlyName = "Toggle Flashlight Enabled"))
+	void ToggleFlashlightEnabled();
 
 protected:
 

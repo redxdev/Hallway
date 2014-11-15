@@ -4,6 +4,7 @@
 #include "HallwayGameMode.h"
 #include "HallwayHUD.h"
 #include "HallwayCharacter.h"
+#include "HorrorGameState.h"
 
 AHallwayGameMode::AHallwayGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
@@ -12,6 +13,8 @@ AHallwayGameMode::AHallwayGameMode(const class FPostConstructInitializePropertie
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_PlayerCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 
+	GameStateClass = AHorrorGameState::StaticClass();
+	
 	// use our custom HUD class
 	HUDClass = AHallwayHUD::StaticClass();
 }

@@ -113,7 +113,7 @@ void AHorrorGameState::Tick(float DeltaTime)
 		if (TimeUntilNextSound <= 0 && TimeUntilNextEvent > 10.f)
 		{
 			CallRandomSound();
-			TimeUntilNextSound = FMath::RandRange(EventTimer / 4.f, EventTimer);
+			TimeUntilNextSound = FMath::RandRange(EventTimer / 2.f, EventTimer + EventTimer / 2.f);
 		}
 	}
 }

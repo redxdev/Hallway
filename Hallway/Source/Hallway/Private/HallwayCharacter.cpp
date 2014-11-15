@@ -41,8 +41,8 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 	CharacterMovement->bCanWalkOffLedgesWhenCrouching = true;
 
 	// Flashlight settings
-	MaxFlashlightTime = 60.f;
-	FlashlightTimeLeft = 60.f;
+	MaxFlashlightTime = 30.f;
+	FlashlightTimeLeft = 30.f;
 	ShouldFlashlightRunOut = true;
 	FlashlightEnabled = true;
 

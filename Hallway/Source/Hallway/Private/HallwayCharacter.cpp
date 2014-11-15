@@ -27,6 +27,7 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 	FirstPersonCameraComponent->RelativeLocation = FVector(0, 0, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
+
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
@@ -38,6 +39,19 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 	CharacterMovement->MaxAcceleration = 768.f;
 	CharacterMovement->NavAgentProps.bCanCrouch = true;
 	CharacterMovement->bCanWalkOffLedgesWhenCrouching = true;
+
+	// Flashlight settings
+	MaxFlashlightTime = 60.f;
+	FlashlightTimeLeft = 60.f;
+	ShouldFlashlightRunOut = true;
+
+	// Create the flashlight
+	FlashlightComponent = PCIP.CreateDefaultSubobject<USpotLightComponent>(this, TEXT("Flashlight"));
+	FlashlightComponent->bVisible = false;
+	FlashlightComponent->AttachParent = FirstPersonCameraComponent;
+
+	// We want to recieve ticks
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,6 +67,8 @@ void AHallwayCharacter::SetupPlayerInputComponent(class UInputComponent* InputCo
 
 	InputComponent->BindAction("Crouch", IE_Pressed, this, &AHallwayCharacter::InputCrouch);
 	InputComponent->BindAction("Crouch", IE_Released, this, &AHallwayCharacter::InputUnCrouch);
+
+	InputComponent->BindAction("ToggleFlashlight", IE_Pressed, this, &AHallwayCharacter::ToggleFlashlight);
 
 	InputComponent->BindAxis("MoveForward", this, &AHallwayCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AHallwayCharacter::MoveRight);
@@ -104,4 +120,38 @@ void AHallwayCharacter::InputCrouch()
 void AHallwayCharacter::InputUnCrouch()
 {
 	UnCrouch();
+}
+
+void AHallwayCharacter::ToggleFlashlight()
+{
+	if (!FlashlightComponent->bVisible && FlashlightTimeLeft <= 0)
+	{
+		// TODO: Play an error sound here
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "No power left to turn flashlight on");
+		return;
+	}
+
+	FlashlightComponent->SetVisibility(!FlashlightComponent->bVisible);
+}
+
+void AHallwayCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (ShouldFlashlightRunOut && FlashlightComponent->bVisible)
+	{
+		FlashlightTimeLeft -= DeltaSeconds;
+		if (FlashlightTimeLeft <= 0)
+		{
+			FlashlightComponent->SetVisibility(false);
+			
+			// TODO: Play an error sound here
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Flashlight power ran out!");
+		}
+		else if (((int)(FlashlightTimeLeft/5)) != ((int)((FlashlightTimeLeft + DeltaSeconds)/5)))
+		{
+			// TODO: Actual GUI for this
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Flashlight power: %f seconds", FlashlightTimeLeft)));
+		}
+	}
 }

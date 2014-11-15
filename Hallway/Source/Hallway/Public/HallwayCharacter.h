@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "Components/SpotLightComponent.h"
 #include "HallwayCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -19,6 +20,18 @@ class AHallwayCharacter : public ACharacter
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Flashlight)
+	TSubobjectPtr<class USpotLightComponent> FlashlightComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	float MaxFlashlightTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	float FlashlightTimeLeft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	bool ShouldFlashlightRunOut;
 
 protected:
 
@@ -44,9 +57,13 @@ protected:
 
 	void InputUnCrouch();
 
+	void ToggleFlashlight();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+	virtual void Tick(float DeltaSeconds) override;
 };
 

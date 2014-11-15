@@ -33,6 +33,12 @@ class AHallwayCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
 	bool ShouldFlashlightRunOut;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	class USoundBase* FlashlightErrorSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
+	class USoundBase* FlashlightToggleSound;
+
 protected:
 
 	/** Handles moving forward/backward */

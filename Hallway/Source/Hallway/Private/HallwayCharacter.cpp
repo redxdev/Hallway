@@ -126,11 +126,12 @@ void AHallwayCharacter::ToggleFlashlight()
 {
 	if (!FlashlightComponent->bVisible && FlashlightTimeLeft <= 0)
 	{
-		// TODO: Play an error sound here
+		UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "No power left to turn flashlight on");
 		return;
 	}
-
+	
+	UGameplayStatics::PlaySoundAtLocation(this, FlashlightToggleSound, GetActorLocation());
 	FlashlightComponent->SetVisibility(!FlashlightComponent->bVisible);
 }
 
@@ -145,7 +146,8 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 		{
 			FlashlightComponent->SetVisibility(false);
 			
-			// TODO: Play an error sound here
+			UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Flashlight power ran out!");
 		}
 		else if (((int)(FlashlightTimeLeft/5)) != ((int)((FlashlightTimeLeft + DeltaSeconds)/5)))

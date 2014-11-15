@@ -68,6 +68,10 @@ protected:
 
 	void ToggleFlashlight();
 
+	void StartUse();
+
+	void StopUse();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;

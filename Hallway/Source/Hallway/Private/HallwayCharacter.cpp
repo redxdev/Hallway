@@ -72,6 +72,9 @@ void AHallwayCharacter::SetupPlayerInputComponent(class UInputComponent* InputCo
 
 	InputComponent->BindAction("ToggleFlashlight", IE_Pressed, this, &AHallwayCharacter::ToggleFlashlight);
 
+	InputComponent->BindAction("Use", IE_Pressed, this, &AHallwayCharacter::StartUse);
+	InputComponent->BindAction("Use", IE_Released, this, &AHallwayCharacter::StopUse);
+
 	InputComponent->BindAxis("MoveForward", this, &AHallwayCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AHallwayCharacter::MoveRight);
 	
@@ -145,6 +148,14 @@ void AHallwayCharacter::ToggleFlashlight()
 	FlashlightComponent->SetVisibility(!FlashlightComponent->bVisible);
 }
 
+void AHallwayCharacter::StartUse()
+{
+}
+
+void AHallwayCharacter::StopUse()
+{
+}
+
 void AHallwayCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -177,10 +188,10 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 		{
 			if (FootstepSound != NULL)
 			{
-				FVector side = FootstepRightSide ? FVector(0, 1, 0) : FVector(0, -1, 0);
-				side *= 30;
-				FootstepRightSide = !FootstepRightSide;
-				UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation() + side);
+				//FVector side = FootstepRightSide ? FVector(0, 1, 0) : FVector(0, -1, 0);
+				//side *= 30;
+				//FootstepRightSide = !FootstepRightSide;
+				UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation());
 			}
 
 			TimeUntilNextFootstep = 1.f;

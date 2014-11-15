@@ -11,3 +11,8 @@ AGameplayEvent::AGameplayEvent(const class FPostConstructInitializeProperties& P
 void AGameplayEvent::ExecuteEvent_Implementation()
 {
 }
+
+bool AGameplayEvent::CanExecuteEvent_Implementation()
+{
+	return false;
+}

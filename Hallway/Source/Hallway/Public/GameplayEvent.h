@@ -12,4 +12,7 @@ class AGameplayEvent : public AActor
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Gameplay", meta = (FriendlyName = "Execute Event"))
 	void ExecuteEvent();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Gameplay", meta = (FriendlyName = "Can Execute Event"))
+	bool CanExecuteEvent();
 };

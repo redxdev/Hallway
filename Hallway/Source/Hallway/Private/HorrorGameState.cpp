@@ -24,14 +24,30 @@ bool AHorrorGameState::CallRandomEvent()
 		return false;
 	}
 
-	AGameplayEvent* Obj = Events[FMath::RandHelper(Events.Num())];
-	if (!Obj || !Obj->IsValidLowLevel())
+	TArray<AGameplayEvent*> ValidEvents;
+
+	for(AGameplayEvent* Event : Events)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid AGameplayEvent in AHorrorGameState::Events array"));
+		if (!Event || !Event->IsValidLowLevel())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Found invalid AGamplayEvent"));
+			continue;
+		}
+
+		if (Event->CanExecuteEvent())
+		{
+			ValidEvents.Add(Event);
+		}
+	}
+
+	if (ValidEvents.Num() == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No valid events found, skipping event tick"));
 		return false;
 	}
 
-	Obj->ExecuteEvent();
+	AGameplayEvent* Event = ValidEvents[FMath::RandHelper(ValidEvents.Num())];
+	Event->ExecuteEvent();
 	return true;
 }
 
@@ -52,7 +68,6 @@ bool AHorrorGameState::CallRandomSound()
 
 	FVector Location = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
 	FVector Offset = FVector(FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
-	Offset.Normalize();
 	Offset *= 1000;
 	Location += Offset;
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, Location);

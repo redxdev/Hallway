@@ -8,7 +8,12 @@
 AHorrorGameState::AHorrorGameState(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
+	EventTimer = 60.f;
+	TimeUntilNextEvent = 60.f;
+	TimeUntilNextSound = 20.f;
+	EventTimerRunning = false;
 
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 bool AHorrorGameState::CallRandomEvent()
@@ -19,41 +24,81 @@ bool AHorrorGameState::CallRandomEvent()
 		return false;
 	}
 
-	UObject* Obj = Events[FMath::RandHelper(Events.Num())];
+	AGameplayEvent* Obj = Events[FMath::RandHelper(Events.Num())];
 	if (!Obj || !Obj->IsValidLowLevel())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid UObject in AHorrorGameState::Events array"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid AGameplayEvent in AHorrorGameState::Events array"));
 		return false;
 	}
 
-	if (Obj->GetClass()->ImplementsInterface(UGameplayEvent::StaticClass()))
-	{
-		IGameplayEvent::Execute_ExecuteEvent(Obj);
-		return true;
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Tried to call invalid IGameplayEvent"));
-		return false;
-	}
+	Obj->ExecuteEvent();
+	return true;
 }
 
-bool AHorrorGameState::AddGameplayEvent(UObject* Object)
+bool AHorrorGameState::CallRandomSound()
 {
-	if (!Object || !Object->IsValidLowLevel())
+	if (Sounds.Num() == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No sounds to call"));
+		return false;
+	}
+
+	USoundBase* Sound = Sounds[FMath::RandHelper(Sounds.Num())];
+	if (!Sound || !Sound->IsValidLowLevel())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid USoundBase in AHorrorGameState::Sounds array"));
+		return false;
+	}
+
+	FVector Location = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
+	FVector Offset = FVector(FMath::RandRange(-1, 1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1));
+	Offset.Normalize();
+	Offset *= 1000;
+	Location += Offset;
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, Location);
+
+	return true;
+}
+
+bool AHorrorGameState::AddGameplayEvent(AGameplayEvent* Actor)
+{
+	if (!Actor || !Actor->IsValidLowLevel())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Invalid UObject passed to AddGameplayEvent"));
 		return false;
 	}
 
-	if (Object->GetClass()->ImplementsInterface(UGameplayEvent::StaticClass()))
+	Events.Add(Actor);
+	return true;
+}
+
+void AHorrorGameState::ContinueEventTimer(float Multiplier)
+{
+	TimeUntilNextEvent = FMath::RandRange(EventTimer, EventTimer * Multiplier);
+	EventTimerRunning = true;
+}
+
+void AHorrorGameState::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (EventTimerRunning)
 	{
-		Events.Add(Object);
-		return true;
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Tried to register invalid IGameplayEvent"));
-		return false;
+		TimeUntilNextEvent -= DeltaTime;
+		TimeUntilNextSound -= DeltaTime;
+		if (TimeUntilNextEvent <= 0)
+		{
+			EventTimerRunning = false;
+			if (!CallRandomEvent())
+			{
+				ContinueEventTimer(0.5f);
+			}
+		}
+
+		if (TimeUntilNextSound <= 0 && TimeUntilNextEvent > 10.f)
+		{
+			CallRandomSound();
+			TimeUntilNextSound = FMath::RandRange(EventTimer / 4.f, EventTimer);
+		}
 	}
 }

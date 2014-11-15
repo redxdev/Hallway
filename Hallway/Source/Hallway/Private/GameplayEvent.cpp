@@ -3,11 +3,11 @@
 #include "Hallway.h"
 #include "GameplayEvent.h"
 
-UGameplayEvent::UGameplayEvent(const class FPostConstructInitializeProperties& PCIP)
+AGameplayEvent::AGameplayEvent(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
 }
 
-void IGameplayEvent::ExecuteEvent_Implementation()
+void AGameplayEvent::ExecuteEvent_Implementation()
 {
 }

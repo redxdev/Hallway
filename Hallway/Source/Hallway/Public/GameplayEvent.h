@@ -2,18 +2,14 @@
 
 #pragma once
 
+#include "Object.h"
 #include "GameplayEvent.generated.h"
 
-UINTERFACE(MinimalAPI)
-class UGameplayEvent : public UInterface
+UCLASS(Blueprintable)
+class AGameplayEvent : public AActor
 {
-	GENERATED_UINTERFACE_BODY()
-};
+	GENERATED_UCLASS_BODY()
 
-class IGameplayEvent
-{
-	GENERATED_IINTERFACE_BODY()
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Gameplay", meta = (FriendlyName="Execute Event"))
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Gameplay", meta = (FriendlyName = "Execute Event"))
 	void ExecuteEvent();
 };

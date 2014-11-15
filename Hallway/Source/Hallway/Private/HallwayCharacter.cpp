@@ -52,6 +52,8 @@ AHallwayCharacter::AHallwayCharacter(const class FPostConstructInitializePropert
 
 	// We want to recieve ticks
 	PrimaryActorTick.bCanEverTick = true;
+
+	TimeUntilNextFootstep = 0.f;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,12 +128,20 @@ void AHallwayCharacter::ToggleFlashlight()
 {
 	if (!FlashlightComponent->bVisible && FlashlightTimeLeft <= 0)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+		if (FlashlightErrorSound != NULL)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+		}
+
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "No power left to turn flashlight on");
 		return;
 	}
 	
-	UGameplayStatics::PlaySoundAtLocation(this, FlashlightToggleSound, GetActorLocation());
+	if (FlashlightToggleSound != NULL)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FlashlightToggleSound, GetActorLocation());
+	}
+
 	FlashlightComponent->SetVisibility(!FlashlightComponent->bVisible);
 }
 
@@ -146,7 +156,10 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 		{
 			FlashlightComponent->SetVisibility(false);
 			
-			UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+			if (FlashlightErrorSound != NULL)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, FlashlightErrorSound, GetActorLocation());
+			}
 
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Flashlight power ran out!");
 		}
@@ -155,5 +168,30 @@ void AHallwayCharacter::Tick(float DeltaSeconds)
 			// TODO: Actual GUI for this
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Flashlight power: %f seconds"), FlashlightTimeLeft));
 		}
+	}
+
+	float velSize = GetVelocity().Size();
+	if (velSize > 0)
+	{
+		if (TimeUntilNextFootstep <= 0)
+		{
+			if (FootstepSound != NULL)
+			{
+				FVector side = FootstepRightSide ? FVector(0, 1, 0) : FVector(0, -1, 0);
+				side *= 30;
+				FootstepRightSide = !FootstepRightSide;
+				UGameplayStatics::PlaySoundAtLocation(this, FootstepSound, GetActorLocation() + side);
+			}
+
+			TimeUntilNextFootstep = 1.f;
+		}
+		else
+		{
+			TimeUntilNextFootstep -= velSize / 300.f * DeltaSeconds;
+		}
+	}
+	else
+	{
+		TimeUntilNextFootstep = 0.f;
 	}
 }

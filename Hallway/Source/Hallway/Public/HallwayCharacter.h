@@ -39,6 +39,9 @@ class AHallwayCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Flashlight)
 	class USoundBase* FlashlightToggleSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Character)
+	class USoundBase* FootstepSound;
+
 protected:
 
 	/** Handles moving forward/backward */
@@ -71,5 +74,10 @@ protected:
 	// End of APawn interface
 
 	virtual void Tick(float DeltaSeconds) override;
+
+private:
+	float TimeUntilNextFootstep;
+
+	bool FootstepRightSide;
 };
 

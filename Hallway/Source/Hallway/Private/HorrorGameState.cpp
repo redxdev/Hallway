@@ -9,8 +9,8 @@ AHorrorGameState::AHorrorGameState(const class FPostConstructInitializePropertie
 	: Super(PCIP)
 {
 	EventTimer = 60.f;
-	TimeUntilNextEvent = 60.f;
-	TimeUntilNextSound = 20.f;
+	TimeUntilNextEvent = 20.f;
+	TimeUntilNextSound = 10.f;
 	EventTimerRunning = false;
 
 	PrimaryActorTick.bCanEverTick = true;

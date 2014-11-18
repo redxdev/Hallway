@@ -1,3 +1,5 @@
+This is a list of resources used. Most are CC0, some are CC attribution.
+
 https://www.freesound.org/people/Isaac200000/sounds/188013/
 http://nobiax.deviantart.com/
 https://www.freesound.org/people/OtisJames/sounds/215772/
